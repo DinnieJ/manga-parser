@@ -9,6 +9,6 @@ var ListCommand = &cobra.Command{
 	Short: "Show all chapter of manga",
 	Long:  "Show all chapter of manga",
 	Run: func(cmd *cobra.Command, args []string) {
-		// fmt.Println(args)
+		g_Module.GetListChapter(f_url)
 	},
 }

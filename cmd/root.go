@@ -13,22 +13,32 @@ var enabledModule = map[string]bool{
 	"mangadex":   false,
 }
 
-var Modules = map[string]services.ParserService{
-	"manga4life": &services.Manga4LifeParserService{},
+var (
+	f_module string
+	f_url    string
+)
+
+var modules = map[string]services.ParserService{
+	"manga4life":     &services.Manga4LifeParserService{},
+	"myreadingmanga": nil,
 }
+
+var g_Module services.ParserService
 
 var rootCmd = &cobra.Command{
 	Use:   "manga-parser",
 	Short: "Manga data parser services",
 	Long:  `Manga parser service module, used to parse a manga url to JSON file`,
 	PreRunE: func(cmd *cobra.Command, args []string) error {
-		moduleFlag := cmd.PersistentFlags().Lookup("module")
-		if moduleFlag == nil {
-			return fmt.Errorf("module not provided\nSupported modules: %s", reflect.ValueOf(Modules).MapKeys())
+
+		if f_module == "" {
+			return fmt.Errorf("module not provided\nSupported modules: %s", reflect.ValueOf(modules).MapKeys())
 		}
-		if !enabledModule[moduleFlag.Value.String()] {
-			return fmt.Errorf("module not supported\nSupported modules: %s", reflect.ValueOf(Modules).MapKeys())
+		if !enabledModule[f_module] {
+			return fmt.Errorf("module not supported\nSupported modules: %s", reflect.ValueOf(modules).MapKeys())
 		}
+		g_Module = modules[f_module]
+		g_Module.InitInstance()
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -48,9 +58,11 @@ func parseCommandPreRun(rootCmd *cobra.Command, cmds []*cobra.Command) {
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringP("url", "u", "", "Manga url string")
-	rootCmd.PersistentFlags().StringP("module", "m", "", "Parser module")
+	rootCmd.PersistentFlags().StringVarP(&f_url, "url", "u", "", "Manga url string")
+	rootCmd.PersistentFlags().StringVarP(&f_module, "module", "m", "", "Parser module")
 	rootCmd.MarkPersistentFlagRequired("url")
 	rootCmd.MarkPersistentFlagRequired("module")
+	rootCmd.CompletionOptions = cobra.CompletionOptions{DisableDefaultCmd: true}
 	parseCommandPreRun(rootCmd, []*cobra.Command{ListCommand, ParseCommand, InfoCommand})
+
 }

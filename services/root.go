@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/DinnieJ/godash"
 	"github.com/tebeka/selenium"
 	"github.com/tebeka/selenium/chrome"
@@ -50,19 +52,21 @@ func StartChromeDriverService(driverSrc string, driverPort int) *selenium.Servic
 	return service
 }
 
-func NewDriver() (selenium.WebDriver, error) {
+func NewDriver() (selenium.WebDriver, *selenium.Service, error) {
+	service := StartChromeDriverService("./chromedriver", 4444)
 	caps := selenium.Capabilities{}
-	chromeCaps := chrome.Capabilities{Args: []string{"--headless-new"}}
-	chromeCaps.AddExtension("")
+	chromeCaps := chrome.Capabilities{Args: []string{"--headless"}}
+	// chromeCaps.AddExtension("")
 	caps.AddChrome(chromeCaps)
 
 	driver, err := selenium.NewRemote(caps, "")
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
+		return nil, nil, err
 	}
 	if err := driver.MaximizeWindow(""); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return driver, nil
+	return driver, service, nil
 }
