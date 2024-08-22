@@ -7,8 +7,11 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/dolmen-go/kittyimg"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
@@ -38,6 +41,13 @@ func displayImgTerm(url string) {
 
 }
 
+func customPrintLn(title string, value string) {
+	titleSprint := color.New(color.FgCyan, color.Bold).SprintfFunc()
+	valueSprint := color.New(color.FgHiMagenta).SprintfFunc()
+
+	fmt.Printf("%s%s\n", titleSprint("%s: ", title), valueSprint(value))
+}
+
 var InfoCommand = &cobra.Command{
 	Use:   "info",
 	Short: "Get manga information from url",
@@ -45,6 +55,9 @@ var InfoCommand = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		info := g_Module.GetInfo(f_url)
 		displayImgTerm(info.Thumbnail)
-		fmt.Println(info)
+		customPrintLn("Title", info.Name)
+		customPrintLn("Authors", strings.Join(info.Authors, ", "))
+		customPrintLn("Description", info.Description)
+		customPrintLn("Total chapters", strconv.FormatInt(int64(info.NumberOfChapter), 10))
 	},
 }
