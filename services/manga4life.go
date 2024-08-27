@@ -1,6 +1,9 @@
 package services
 
 import (
+	"time"
+
+	"github.com/DinnieJ/godash"
 	"github.com/tebeka/selenium"
 )
 
@@ -23,20 +26,23 @@ func (m *Manga4LifeParserService) GetInfo(url string) *MangaInfo {
 	if err := m.driver.Get(url); err != nil {
 		panic(err)
 	}
+	m.driver.SetImplicitWaitTimeout(5 * time.Second)
 	info := &MangaInfo{}
+	infoBoxEl := godash.Must(m.driver.FindElement(selenium.ByCSSSelector, "body > div.container.MainContainer > div > div > div > div > div:nth-child(1) > div.col-md-9.col-sm-8.top-5 > ul"))
+	listInfoEls := godash.Must(infoBoxEl.FindElements(selenium.ByTagName))
 	if nameEl, err := m.driver.FindElement(selenium.ByCSSSelector, "body > div.container.MainContainer > div > div > div > div > div:nth-child(1) > div.col-md-9.col-sm-8.top-5 > ul > li:nth-child(1)"); err == nil {
 		if name, err := nameEl.Text(); err == nil {
 			info.Name = name
 		}
 	}
 
-	if descriptionEl, err := m.driver.FindElement(selenium.ByCSSSelector, "body > div.container.MainContainer > div > div > div > div > div:nth-child(1) > div.col-md-9.col-sm-8.top-5 > ul > li:nth-child(11) > div"); err == nil {
+	if descriptionEl, err := m.driver.FindElement(selenium.ByCSSSelector, "body > div.container.MainContainer > div > div > div > div > div:nth-child(1) > div.col-md-9.col-sm-8.top-5 > ul > li:nth-child(10) > div"); err == nil {
 		if description, err := descriptionEl.Text(); err == nil {
 			info.Description = description
 		}
 	}
 
-	if authorsEl, err := m.driver.FindElement(selenium.ByCSSSelector, "body > div.container.MainContainer > div > div > div > div > div:nth-child(1) > div.col-md-9.col-sm-8.top-5 > ul > li:nth-child(4)"); err == nil {
+	if authorsEl, err := m.driver.FindElement(selenium.ByCSSSelector, "body > div.container.MainContainer > div > div > div > div > div:nth-child(1) > div.col-md-9.col-sm-8.top-5 > ul > li:nth-child(3)"); err == nil {
 		authorTagsEl, _ := authorsEl.FindElements(selenium.ByTagName, "a")
 		for _, e := range authorTagsEl {
 			if authorName, err := e.Text(); err == nil {
