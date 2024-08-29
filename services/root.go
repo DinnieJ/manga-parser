@@ -14,20 +14,21 @@ type MangaInfo struct {
 	Name            string
 	Description     string
 	Authors         []string
+	Genres          []string
 }
 
 type Chapter struct {
-	Index      int32
-	Name       string
-	ChapterUrl int32
-	TotalPage  int32
+	Index      int32  `json:"-"`
+	Name       string `json:"chapterTitle"`
+	ChapterUrl string `json:"chapterUrl"`
+	TotalPage  int32  `json:"totalPage"`
 	Pages      []Page
 }
 
 type Page struct {
-	Index         int32
-	ImageUrl      string
-	PageImageData []byte
+	Index         int32  `json:"index"`
+	ImageUrl      string `json:"imageUrl"`
+	PageImageData []byte `json:"-"`
 }
 
 type BookData struct {
@@ -35,8 +36,21 @@ type BookData struct {
 	Chapters []Chapter
 }
 
+type BookDataParseJson struct {
+	Title    string    `json:"title"`
+	Cover    string    `json:"cover"`
+	Authors  []string  `json:"authors"`
+	Chapters []Chapter `json:"chapters"`
+}
+
+type ParserStruct struct {
+	Service *selenium.Service
+	Driver  selenium.WebDriver
+}
+
 type ParserService interface {
 	InitInstance()
+	KillService() error
 	GetInfo(url string) *MangaInfo
 	GetListChapter(url string) []Chapter
 	ParseData(url string, start int32, end int32) *BookData
@@ -55,7 +69,7 @@ func StartChromeDriverService(driverSrc string, driverPort int) *selenium.Servic
 func NewDriver() (selenium.WebDriver, *selenium.Service, error) {
 	service := StartChromeDriverService("./chromedriver", 4444)
 	caps := selenium.Capabilities{}
-	chromeCaps := chrome.Capabilities{Args: []string{"--headless"}}
+	chromeCaps := chrome.Capabilities{Args: []string{"--blink-settings=imagesEnabled=false", "--headless"}}
 	// chromeCaps.AddExtension("")
 	caps.AddChrome(chromeCaps)
 
