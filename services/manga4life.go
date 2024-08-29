@@ -126,8 +126,13 @@ func (m *Manga4LifeParserService) GetListChapter(url string) []Chapter {
 	return chapters
 }
 
+func getChapterPages(url string) {
+
+}
 func (m *Manga4LifeParserService) ParseData(url string, start int32, end int32) *BookData {
-	return nil
+	// info := m.GetInfo(url)
+	// chapters := m.GetListChapter(url)
+	return &BookData{}
 }
 
 func (m *Manga4LifeParserService) KillService() error {
