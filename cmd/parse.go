@@ -1,6 +1,11 @@
 package cmd
 
-import "github.com/spf13/cobra"
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/spf13/cobra"
+)
 
 var m_StartIdx, m_EndIdx int
 
@@ -9,7 +14,14 @@ var ParseCommand = &cobra.Command{
 	Short: "Parsing books to JSON format",
 	Long:  "Parsing books to JSON format",
 	Run: func(cmd *cobra.Command, args []string) {
-		g_Module.ParseData(f_url, int32(m_StartIdx), int32(m_EndIdx))
+		defer g_Module.KillService()
+		jsonData := g_Module.ParseData(f_url, int32(m_StartIdx), int32(m_EndIdx))
+		b, err := json.MarshalIndent(jsonData, "", "  ")
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println(string(b))
 	},
 }
 

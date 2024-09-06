@@ -22,7 +22,7 @@ type Chapter struct {
 	Name       string `json:"chapterTitle"`
 	ChapterUrl string `json:"chapterUrl"`
 	TotalPage  int32  `json:"totalPage"`
-	Pages      []Page
+	Pages      []*Page
 }
 
 type Page struct {
@@ -53,7 +53,7 @@ type ParserService interface {
 	KillService() error
 	GetInfo(url string) *MangaInfo
 	GetListChapter(url string) []Chapter
-	ParseData(url string, start int32, end int32) *BookData
+	ParseData(url string, start int32, end int32) *BookDataParseJson
 }
 
 func StartChromeDriverService(driverSrc string, driverPort int) *selenium.Service {
@@ -69,7 +69,12 @@ func StartChromeDriverService(driverSrc string, driverPort int) *selenium.Servic
 func NewDriver() (selenium.WebDriver, *selenium.Service, error) {
 	service := StartChromeDriverService("./chromedriver", 4444)
 	caps := selenium.Capabilities{}
-	chromeCaps := chrome.Capabilities{Args: []string{"--blink-settings=imagesEnabled=false", "--headless"}}
+	chromeCaps := chrome.Capabilities{Args: []string{
+		"--blink-settings=imagesEnabled=false",
+		"--headless",
+		"--no-sandbox",
+		"--disable-dev-shm-usage"},
+	}
 	// chromeCaps.AddExtension("")
 	caps.AddChrome(chromeCaps)
 
